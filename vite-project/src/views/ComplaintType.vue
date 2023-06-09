@@ -1,17 +1,36 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import BarChart from '../components/BarChart.vue'
+const chartData = {
+  labels: [],
+  datasets: [{ data: []}]
+}
+async function apiData() {
+  const response = await fetch('https://data.cityofnewyork.us/resource/erm2-nwe9.json')
+  const data = await response.json()
+  console.log(data)
+  barData(data)
+  console.log(chartData)
+}
+apiData()
+function barData(data) {
+  data.forEach(report => {
+    if (chartData.labels.includes(report.complaint_type)) {
+      chartData.datasets[0].data[chartData.labels.indexOf(report.complaint_type)] += 1
+    }
+    else {
+      chartData.labels.push(report.complaint_type)
+      chartData.datasets[0].data.push(1)
+    }
+  })
+}
 </script>
 
 <template>
-  <h1> 
-    Sorry I know this project is probably the worst thing youll ever see. Clicking the "undefined" text twice on page load turns on the values. Sorting by city shows the amount of requests received by 311. Sorting by type shows the most prevalent issues.
-  </h1>
+  <h1></h1>
   <header>
-    <RouterLink to="/city">Sort by City</RouterLink>
-    <RouterLink to="/complaint">Sort by Type</RouterLink>
+    <BarChart :chartData="chartData"></BarChart>
   </header>
 
-  <RouterView />
 </template>
 
 <style scoped>
